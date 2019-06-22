@@ -6,17 +6,26 @@
 
 (enable-console-print!)
 
-(defn Square [{:keys [value]}]
-  (let [[clicked? set-clicked] (react/use-state nil)]
-    (html [:button.square
-           {:onClick (fn [] (set-clicked "X"))}
-           clicked?])))
-
-(defn render-square [i]
-  (Square {:value i}))
+(defn Square [{:keys [value onClick]}]
+  (html [:button.square
+         {:onClick (fn [] (onClick))}
+         value]))
 
 (defn Board [props]
-  (let [status "Next player: X"]
+  (let [[squares update-squares]
+        (react/use-state (vec (repeat 9 nil)))
+        _ (pr squares)
+
+        handle-click
+        (fn [i]
+          (update-squares (assoc squares i "X")))
+
+        render-square
+        (fn [i]
+          (Square {:value (nth squares i)
+                   :onClick #(handle-click i)}))
+
+        status "Next player: X"]
     (html
       [:div
        [:div.status status]
