@@ -6,11 +6,11 @@
 
 (enable-console-print!)
 
-(defn Square [props]
-  (html [:button.square ""]))
+(defn Square [{:keys [value]}]
+  (html [:button.square value]))
 
-(defn render-square [props i]
-  (Square props))
+(defn render-square [i]
+  (Square {:value i}))
 
 (defn Board [props]
   (let [status "Next player: X"]
@@ -18,17 +18,17 @@
       [:div
        [:div.status status]
        [:div.board-row
-        (render-square props 0)
-        (render-square props 1)
-        (render-square props 2)]
+        (render-square 0)
+        (render-square 1)
+        (render-square 2)]
        [:div.board-row
-        (render-square props 3)
-        (render-square props 4)
-        (render-square props 5)]
+        (render-square 3)
+        (render-square 4)
+        (render-square 5)]
        [:div.board-row
-        (render-square props 6)
-        (render-square props 7)
-        (render-square props 8)]])))
+        (render-square 6)
+        (render-square 7)
+        (render-square 8)]])))
 
 (defn Game [props]
   (html
