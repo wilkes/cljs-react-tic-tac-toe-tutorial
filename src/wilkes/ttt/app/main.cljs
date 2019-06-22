@@ -12,20 +12,25 @@
          value]))
 
 (defn Board [props]
-  (let [[squares update-squares]
-        (react/use-state (vec (repeat 9 nil)))
-        _ (pr squares)
+  (let [[state update-state]
+        (react/use-state {:squares (vec (repeat 9 nil))
+                          :is-x-next true})
+
+        _ (pr state)
 
         handle-click
         (fn [i]
-          (update-squares (assoc squares i "X")))
+          (let [x? (:is-x-next state)]
+            (update-state (-> state
+                              (update :squares assoc i (if x? "X" "O"))
+                              (assoc :is-x-next (not x?))))))
 
         render-square
         (fn [i]
-          (Square {:value (nth squares i)
+          (Square {:value (-> state :squares (nth i))
                    :onClick #(handle-click i)}))
 
-        status "Next player: X"]
+        status (str "Next player: " (if (-> state :is-x-next) "X" "O"))]
     (html
       [:div
        [:div.status status]
