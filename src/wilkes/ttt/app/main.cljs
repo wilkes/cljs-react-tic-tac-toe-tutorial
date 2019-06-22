@@ -7,7 +7,10 @@
 (enable-console-print!)
 
 (defn Square [{:keys [value]}]
-  (html [:button.square value]))
+  (let [[clicked? set-clicked] (react/use-state nil)]
+    (html [:button.square
+           {:onClick (fn [] (set-clicked "X"))}
+           clicked?])))
 
 (defn render-square [i]
   (Square {:value i}))
