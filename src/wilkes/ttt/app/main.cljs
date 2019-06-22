@@ -6,31 +6,51 @@
 
 (enable-console-print!)
 
-(defn Square [{:keys [value onClick]}]
-  (html [:button.square
-         {:onClick (fn [] (onClick))}
-         value]))
+(def lines [[0 1 2]
+            [3 4 5]
+            [6 7 8]
+            [0 3 6]
+            [1 4 7]
+            [2 5 8]
+            [0 4 8]
+            [2 4 6]])
 
-(defn Board [props]
-  (let [[state update-state]
+(defn calculate-winner [squares]
+  (first (keep (fn [[a b c]]
+                 (when (and (nth squares a)
+                            (= (nth squares a)
+                               (nth squares b))
+                            (= (nth squares a)
+                               (nth squares c)))
+                   (nth squares a)))
+               lines)))
+
+(defn Square [{:keys [value onClick]}]
+  (html [:button.square {:onClick onClick} value]))
+
+(defn Board [_]
+  (let [[state set-state]
         (react/use-state {:squares (vec (repeat 9 nil))
                           :is-x-next true})
 
-        _ (pr state)
-
         handle-click
         (fn [i]
-          (let [x? (:is-x-next state)]
-            (update-state (-> state
-                              (update :squares assoc i (if x? "X" "O"))
-                              (assoc :is-x-next (not x?))))))
+          (let [x? (:is-x-next state)
+                winner (calculate-winner (:squares state))]
+            (when-not (or winner (nth (:squares state) i))
+              (set-state (-> state
+                             (update :squares assoc i (if x? "X" "O"))
+                             (assoc :is-x-next (not x?)))))))
 
         render-square
         (fn [i]
           (Square {:value (-> state :squares (nth i))
                    :onClick #(handle-click i)}))
 
-        status (str "Next player: " (if (-> state :is-x-next) "X" "O"))]
+        winner (calculate-winner (:squares state))
+        status (if winner
+                 (str "Winner: " winner)
+                 (str "Next player: " (if (-> state :is-x-next) "X" "O")))]
     (html
       [:div
        [:div.status status]
@@ -47,11 +67,11 @@
         (render-square 7)
         (render-square 8)]])))
 
-(defn Game [props]
+(defn Game [_]
   (html
     [:div.game
      [:div.game-board
-      (Board props)]
+      (Board nil)]
      [:div.game-info
       [:div]
       [:ol]]]))
